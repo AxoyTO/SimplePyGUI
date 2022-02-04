@@ -1,4 +1,4 @@
-from math import ceil
+import random
 import pygame
 import os
 
@@ -73,6 +73,8 @@ def start():
     print('PLAYER_MARK: ', PLAYER_MARK)
     print('COMPUTER MARK: ', COMPUTER_MARK)
 
+    turn_specifier = 0
+
     game_is_running = True
     while game_is_running:
         for event in pygame.event.get():
@@ -83,23 +85,30 @@ def start():
                 pos = pygame.mouse.get_pos()
                 column = pos[0] // (CELL["WIDTH"] + CELL["MARGIN"])
                 row = pos[1] // (CELL["HEIGHT"] + CELL["MARGIN"])
-
-                try:
-                    if board[row][column] == ' ':
-                        if PLAYER_MARK == 'X':
-                            board[row][column] = 'X'
-                            screen.blit(x_img, closest_cell(row, column))
-                        elif PLAYER_MARK == 'O':
-                            board[row][column] = 'O'
-                            screen.blit(o_img, closest_cell(row, column))
-                        display_board()
-                        state = check_state()
-                        if state == 1:
-                            game_is_running = False
-                        print("Click ", pos, "board coordinates: ", row, column)
-                except IndexError:
-                    pass
+                if turn_specifier == 0:
+                    try:
+                        if board[row][column] == ' ':
+                            if PLAYER_MARK == 'X':
+                                board[row][column] = 'X'
+                                screen.blit(x_img, closest_cell(row, column))
+                            elif PLAYER_MARK == 'O':
+                                board[row][column] = 'O'
+                                screen.blit(o_img, closest_cell(row, column))
+                            display_board()
+                            turn_specifier = computer_turn()
+                            state = check_state()
+                            if state == 1:
+                                game_is_running = False
+                            print("Click ", pos,
+                                  "board coordinates: ", row, column)
+                    except IndexError:
+                        pass
         pygame.display.flip()
+
+
+def computer_turn():
+    print("comp makes turn")
+    return 0
 
 
 def display_board():
