@@ -43,7 +43,7 @@ def adjust_board():
     for row in range(BOARD["ROW_SIZE"]):
         board.append([])
         for column in range(BOARD["COLUMN_SIZE"]):
-            board[row].append(0)
+            board[row].append(' ')
 
 
 def start():
@@ -55,7 +55,6 @@ def start():
 
     game_is_running = True
     while game_is_running:
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_is_running = False
@@ -64,27 +63,32 @@ def start():
                 column = pos[0] // (CELL["WIDTH"] + CELL["MARGIN"])
                 row = pos[1] // (CELL["HEIGHT"] + CELL["MARGIN"])
 
-                if board[row][column] == 0:
-                    if PLAYER_MARK == 'X':
-                        board[row][column] = 1
-                    elif PLAYER_MARK == 'O':
-                        board[row][column] = 2
-
-                    print("Click ", pos, "board coordinates: ", row, column)
-
+                try:
+                    if board[row][column] == ' ':
+                        if PLAYER_MARK == 'X':
+                            board[row][column] = 'X'
+                        elif PLAYER_MARK == 'O':
+                            board[row][column] = 'O'
+                        display_board()
+                        print("Click ", pos, "board coordinates: ", row, column)
+                except IndexError:
+                    pass
         draw_board(screen)
-
         pygame.display.flip()
 
 
+def display_board():
+    for i in board:
+        print(i)
+
+
 def draw_board(screen):
-    is_board_filled = False
     for row in range(10):
         for column in range(10):
             color = COLORS["WHITE"]
-            if board[row][column] == 1:
+            if board[row][column] == 'X':
                 color = COLORS["GREEN"]
-            elif board[row][column] == 2:
+            elif board[row][column] == 'O':
                 color = COLORS["RED"]
             pygame.draw.rect(screen,
                              color,
@@ -93,11 +97,11 @@ def draw_board(screen):
                                  row + CELL["MARGIN"],
                                  CELL["WIDTH"], CELL["HEIGHT"]])
 
-    if is_board_filled == True:
-        print('its a draw')
 
-    # def set_turn(player):
+def check_status(board):
+    display_board()
+# def set_turn(player):
 
 
-# start()
+#start()
 pygame.quit()
