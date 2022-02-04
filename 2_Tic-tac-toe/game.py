@@ -88,14 +88,11 @@ def start():
                 if turn_specifier == 0:
                     try:
                         if board[row][column] == ' ':
-                            if PLAYER_MARK == 'X':
-                                board[row][column] = 'X'
-                                screen.blit(x_img, closest_cell(row, column))
-                            elif PLAYER_MARK == 'O':
-                                board[row][column] = 'O'
-                                screen.blit(o_img, closest_cell(row, column))
+                            board[row][column] = PLAYER_MARK
+                            screen.blit(o_img, closest_cell(row, column)) if PLAYER_MARK == 'O' else screen.blit(
+                                x_img, closest_cell(row, column))
                             display_board()
-                            turn_specifier = computer_turn()
+                            turn_specifier = computer_turn(screen)
                             state = check_state()
                             if state == 1:
                                 game_is_running = False
@@ -106,8 +103,17 @@ def start():
         pygame.display.flip()
 
 
-def computer_turn():
+def computer_turn(screen):
+
     print("comp makes turn")
+    x = random.randint(0, 9)
+    y = random.randint(0, 9)
+    while board[x][y] != ' ':
+        x = random.randint(0, 9)
+        y = random.randint(0, 9)
+    board[x][y] = COMPUTER_MARK
+    screen.blit(o_img, closest_cell(x, y)) if COMPUTER_MARK == 'O' else screen.blit(
+        o_img, closest_cell(x, y))
     return 0
 
 
