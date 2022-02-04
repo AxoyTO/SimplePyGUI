@@ -1,4 +1,5 @@
 import pygame
+import os
 
 COLORS = {
     "BLACK": (0, 0, 0),
@@ -7,7 +8,7 @@ COLORS = {
     "RED": (255, 0, 0)
 }
 
-PLAYER_MARK, COMPUTER_MARK = 'X', 'O'
+PLAYER_MARK, COMPUTER_MARK = 'O', 'O'
 
 BOARD = {
     "ROW_SIZE": 10,
@@ -24,6 +25,7 @@ GAME_WINDOW_SIZE = [400, 400]
 
 pygame.font.init()
 
+
 font = pygame.font.SysFont('Comic Sans MS', 30)
 text = font.render('X', False, (0, 0, 0))
 textRect = text.get_rect()
@@ -32,10 +34,26 @@ textRect.center = (114, 124)
 
 board = []
 
+current_dir = os.getcwd()
+o_button_path = os.path.join(current_dir, 'assets', 'o.png')
+x_button_path = os.path.join(current_dir, 'assets', 'x.png')
+
+x_img = pygame.image.load(x_button_path)
+o_img = pygame.image.load(o_button_path)
+
+x_img = pygame.transform.scale(x_img, (40, 40))
+o_img = pygame.transform.scale(o_img, (40, 40))
+
 
 def adjust_screen():
     screen = pygame.display.set_mode(GAME_WINDOW_SIZE)
-    screen.fill(COLORS["BLACK"])
+    screen.fill(COLORS["WHITE"])
+    for i in range(1, 10):
+        pygame.draw.line(screen, COLORS['BLACK'],
+                         (400 / 10*i, 0), (400 / 10*i, 400), 2)
+        pygame.draw.line(screen, COLORS['BLACK'],
+                         (0, 400/10*i), (400, 400/10*i), 2)
+
     return screen
 
 
@@ -56,12 +74,14 @@ def start():
 
     game_is_running = True
     while game_is_running:
+        mouse_position = (0, 0)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_is_running = False
                 break
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
+                mouse_position = pos
                 column = pos[0] // (CELL["WIDTH"] + CELL["MARGIN"])
                 row = pos[1] // (CELL["HEIGHT"] + CELL["MARGIN"])
 
@@ -69,8 +89,11 @@ def start():
                     if board[row][column] == ' ':
                         if PLAYER_MARK == 'X':
                             board[row][column] = 'X'
+                            closest_cell(pos)
+                            screen.blit(x_img, closest_cell(pos))
                         elif PLAYER_MARK == 'O':
                             board[row][column] = 'O'
+                            screen.blit(o_img, closest_cell(pos))
                         display_board()
                         state = check_state()
                         if state == 1:
@@ -78,7 +101,7 @@ def start():
                         print("Click ", pos, "board coordinates: ", row, column)
                 except IndexError:
                     pass
-        draw_board(screen)
+        # draw_board(screen, mouse_position)
         pygame.display.flip()
 
 
@@ -87,20 +110,22 @@ def display_board():
         print(i)
 
 
-def draw_board(screen):
+def draw_board(screen, pos):
     for row in range(10):
         for column in range(10):
             color = COLORS["WHITE"]
             if board[row][column] == 'X':
-                color = COLORS["GREEN"]
+                screen.blit(x_img, pos)
             elif board[row][column] == 'O':
-                color = COLORS["RED"]
-            pygame.draw.rect(screen,
-                             color,
-                             [(CELL["MARGIN"] + CELL["WIDTH"]) * column + CELL["MARGIN"],
-                                 (CELL["MARGIN"] + CELL["HEIGHT"]) *
-                                 row + CELL["MARGIN"],
-                                 CELL["WIDTH"], CELL["HEIGHT"]])
+                screen.blit(x_img, pos)
+
+
+def closest_cell(pos):
+    x = int(pos[0]/40)*40
+    y = int(pos[1]/40)*40
+    pos = x, y
+    print(pos)
+    return pos
 
 
 def check_state():
@@ -189,10 +214,12 @@ def diagonal_check():
     flat_board = [j for sub in board for j in sub]
 
     for i in range(len(flat_board)+1):
-        if flat_board[i] == flat_board[i+11] == flat_board[i+11*2] == flat_board[i+11*3] == flat_board[i+11*4] == 'X':
+        if flat_board[i] == flat_board[i+11] == flat_board[i+11*2] == flat_board[i+11*3] == flat_board[i+11*4] == 'X' or \
+                flat_board[i] == flat_board[i+9] == flat_board[i+9*2] == flat_board[i+9*3] == flat_board[i+9*4] == 'X':
             winner = 'O'
             break
-        elif flat_board[i] == flat_board[i+11] == flat_board[i+11*2] == flat_board[i+11*3] == flat_board[i+11*4] == 'O':
+        elif flat_board[i] == flat_board[i+11] == flat_board[i+11*2] == flat_board[i+11*3] == flat_board[i+11*4] == 'O' or \
+                flat_board[i] == flat_board[i+9] == flat_board[i+9*2] == flat_board[i+9*3] == flat_board[i+9*4] == 'O':
             winner = 'X'
             break
 
