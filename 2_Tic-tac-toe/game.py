@@ -1,3 +1,4 @@
+from math import ceil
 import pygame
 import os
 
@@ -74,14 +75,12 @@ def start():
 
     game_is_running = True
     while game_is_running:
-        mouse_position = (0, 0)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_is_running = False
                 break
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                mouse_position = pos
                 column = pos[0] // (CELL["WIDTH"] + CELL["MARGIN"])
                 row = pos[1] // (CELL["HEIGHT"] + CELL["MARGIN"])
 
@@ -89,11 +88,10 @@ def start():
                     if board[row][column] == ' ':
                         if PLAYER_MARK == 'X':
                             board[row][column] = 'X'
-                            closest_cell(pos)
-                            screen.blit(x_img, closest_cell(pos))
+                            screen.blit(x_img, closest_cell(row, column))
                         elif PLAYER_MARK == 'O':
                             board[row][column] = 'O'
-                            screen.blit(o_img, closest_cell(pos))
+                            screen.blit(o_img, closest_cell(row, column))
                         display_board()
                         state = check_state()
                         if state == 1:
@@ -101,7 +99,6 @@ def start():
                         print("Click ", pos, "board coordinates: ", row, column)
                 except IndexError:
                     pass
-        # draw_board(screen, mouse_position)
         pygame.display.flip()
 
 
@@ -110,20 +107,8 @@ def display_board():
         print(i)
 
 
-def draw_board(screen, pos):
-    for row in range(10):
-        for column in range(10):
-            color = COLORS["WHITE"]
-            if board[row][column] == 'X':
-                screen.blit(x_img, pos)
-            elif board[row][column] == 'O':
-                screen.blit(x_img, pos)
-
-
-def closest_cell(pos):
-    x = int(pos[0]/40)*40
-    y = int(pos[1]/40)*40
-    pos = x, y
+def closest_cell(row, column):
+    pos = column*40, row*40
     print(pos)
     return pos
 
