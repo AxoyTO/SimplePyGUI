@@ -9,7 +9,7 @@ COLORS = {
     "RED": (255, 0, 0)
 }
 
-PLAYER_MARK, COMPUTER_MARK = 'O', 'O'
+PLAYER_MARK, COMPUTER_MARK = 'X', 'O'
 
 BOARD = {
     "ROW_SIZE": 10,
@@ -114,17 +114,19 @@ def closest_cell(row, column):
 
 
 def check_state():
-    winner = horizontal_check()
+    flat_board = [i for x in board for i in x]
+
+    winner = horizontal_check(flat_board)
     if winner != ' ':
         announce_result(winner)
         return 1
 
-    winner = vertical_check()
+    winner = vertical_check(flat_board)
     if winner != ' ':
         announce_result(winner)
         return 1
 
-    winner = diagonal_check()
+    winner = diagonal_check(flat_board)
     if winner != ' ':
         announce_result(winner)
         return 1
@@ -143,61 +145,34 @@ def announce_result(winner):
             print('Good job!! You beat the computer, you are the winner!')
 
 
-def horizontal_check():
+def horizontal_check(flat_board):
     winner = ' '
-    for i in range(len(board)):
-        O_count = 0
-        X_count = 0
-        for j in range(len(board[i])):
-            if O_count == 5:
-                winner = 'X'
-                break
-            if X_count == 5:
-                winner = 'O'
-                break
-            if board[i][j] == 'X':
-                X_count += 1
-                O_count = 0
-            elif board[i][j] == 'O':
-                O_count += 1
-                X_count = 0
-            else:
-                O_count = 0
-                X_count = 0
+    for i in range(len(flat_board)-4):
+        if flat_board[i] == flat_board[i+1] == flat_board[i+2] == flat_board[i+3] == flat_board[i+4] == 'X':
+            winner = 'O'
+            break
+        elif flat_board[i] == flat_board[i+1] == flat_board[i+2] == flat_board[i+3] == flat_board[i+4] == 'O':
+            winner = 'X'
+            break
+    return winner
+
+
+def vertical_check(flat_board):
+    winner = ' '
+
+    for i in range(int(len(flat_board)/2)+10):
+        if flat_board[i] == flat_board[i+10] == flat_board[i+10*2] == flat_board[i+10*3] == flat_board[i+10*4] == 'X':
+            winner = 'O'
+            break
+        elif flat_board[i] == flat_board[i+10] == flat_board[i+10*2] == flat_board[i+10*3] == flat_board[i+10*4] == 'O':
+            winner = 'X'
+            break
 
     return winner
 
 
-def vertical_check():
+def diagonal_check(flat_board):
     winner = ' '
-    for i in range(len(board)):
-        O_count = 0
-        X_count = 0
-        for j in range(len(board[i])):
-            if O_count == 5:
-                winner = 'X'
-                break
-            if X_count == 5:
-                winner = 'O'
-                break
-            if board[j][i] == 'X':
-                X_count += 1
-                O_count = 0
-            elif board[j][i] == 'O':
-                O_count += 1
-                X_count = 0
-            else:
-                O_count = 0
-                X_count = 0
-
-    return winner
-
-
-def diagonal_check():
-    winner = ' '
-
-    flat_board = [j for sub in board for j in sub]
-
     for i in range(len(flat_board)+1):
         if flat_board[i] == flat_board[i+11] == flat_board[i+11*2] == flat_board[i+11*3] == flat_board[i+11*4] == 'X' or \
                 flat_board[i] == flat_board[i+9] == flat_board[i+9*2] == flat_board[i+9*3] == flat_board[i+9*4] == 'X':
