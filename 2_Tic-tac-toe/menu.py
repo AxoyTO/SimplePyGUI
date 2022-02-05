@@ -24,6 +24,3 @@ def start():
     menu.add.button('Quit', pygame_menu.events.EXIT)
 
     menu.mainloop(screen)
-
-
-# start()

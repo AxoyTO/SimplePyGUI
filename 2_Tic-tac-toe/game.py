@@ -222,5 +222,4 @@ def diagonal_check(flat_board):
     return winner
 
 
-# start()
 pygame.quit()
