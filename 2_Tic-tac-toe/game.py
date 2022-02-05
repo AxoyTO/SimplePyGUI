@@ -25,7 +25,7 @@ CELL = {
 GAME_WINDOW_SIZE = [400, 400]
 
 pygame.font.init()
-font = pygame.font.SysFont('comic sans ms', 16)
+font = pygame.font.SysFont(pygame.font.get_fonts()[random.randint(1, 3)], 16)
 game_over_texts = ['[X] WINS. ', '[O] WINS.', 'DRAW. ']
 game_over_texts = [x + ' RETURNING TO MAIN MENU.' for x in game_over_texts]
 x_wins_text = font.render(
