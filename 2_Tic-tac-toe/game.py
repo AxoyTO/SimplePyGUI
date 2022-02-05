@@ -1,4 +1,6 @@
 import random
+from time import sleep
+from turtle import back
 import pygame
 import os
 
@@ -26,12 +28,7 @@ GAME_WINDOW_SIZE = [400, 400]
 
 pygame.font.init()
 
-
-font = pygame.font.SysFont('Comic Sans MS', 30)
-text = font.render('X', False, (0, 0, 0))
-textRect = text.get_rect()
-textRect.center = (114, 124)
-
+font = pygame.font.SysFont('comic sans ms', 20)
 
 board = []
 
@@ -46,32 +43,9 @@ x_img = pygame.transform.scale(x_img, (40, 40))
 o_img = pygame.transform.scale(o_img, (40, 40))
 
 
-def adjust_screen():
-    screen = pygame.display.set_mode(GAME_WINDOW_SIZE)
-    screen.fill(COLORS["WHITE"])
-    for i in range(1, 10):
-        pygame.draw.line(screen, COLORS['BLACK'],
-                         (400 / 10*i, 0), (400 / 10*i, 400), 2)
-        pygame.draw.line(screen, COLORS['BLACK'],
-                         (0, 400/10*i), (400, 400/10*i), 2)
-
-    return screen
-
-
-def adjust_board():
-    board.clear()
-    for row in range(BOARD["ROW_SIZE"]):
-        board.append([])
-        for column in range(BOARD["COLUMN_SIZE"]):
-            board[row].append(' ')
-
-
 def start():
     screen = adjust_screen()
     adjust_board()
-
-    print('PLAYER_MARK: ', PLAYER_MARK)
-    print('COMPUTER MARK: ', COMPUTER_MARK)
 
     turn_specifier = 0
 
@@ -94,18 +68,41 @@ def start():
                             display_board()
                             turn_specifier = computer_turn(screen)
                             state = check_state()
-                            if state == 1:
+                            if state != ' ':
+                                winner = 'PLAYER' if state == PLAYER_MARK else 'COMPUTER'
+                                winner_mark = state
                                 game_is_running = False
-                            print("Click ", pos,
-                                  "board coordinates: ", row, column)
+                                game_over_text = f"THE GAME IS OVER!\n{winner}({winner_mark}) WINS!\nRETURNING TO MAIN MENU"
+                                show_end_game_text(screen, game_over_text,
+                                                   (50, 50), font, COLORS['RED'], COLORS['BLACK'])
+                                pygame.display.flip()
+                                sleep(5)
                     except IndexError:
                         pass
         pygame.display.flip()
 
 
-def computer_turn(screen):
+def adjust_screen():
+    screen = pygame.display.set_mode(GAME_WINDOW_SIZE)
+    screen.fill(COLORS["WHITE"])
+    for i in range(1, 10):
+        pygame.draw.line(screen, COLORS['BLACK'],
+                         (400 / 10*i, 0), (400 / 10*i, 400), 2)
+        pygame.draw.line(screen, COLORS['BLACK'],
+                         (0, 400/10*i), (400, 400/10*i), 2)
 
-    print("comp makes turn")
+    return screen
+
+
+def adjust_board():
+    board.clear()
+    for row in range(BOARD["ROW_SIZE"]):
+        board.append([])
+        for column in range(BOARD["COLUMN_SIZE"]):
+            board[row].append(' ')
+
+
+def computer_turn(screen):
     x = random.randint(0, 9)
     y = random.randint(0, 9)
     while board[x][y] != ' ':
@@ -113,7 +110,7 @@ def computer_turn(screen):
         y = random.randint(0, 9)
     board[x][y] = COMPUTER_MARK
     screen.blit(o_img, closest_cell(x, y)) if COMPUTER_MARK == 'O' else screen.blit(
-        o_img, closest_cell(x, y))
+        x_img, closest_cell(x, y))
     return 0
 
 
@@ -124,7 +121,6 @@ def display_board():
 
 def closest_cell(row, column):
     pos = column*40, row*40
-    print(pos)
     return pos
 
 
@@ -134,17 +130,19 @@ def check_state():
     winner = horizontal_check(flat_board)
     if winner != ' ':
         announce_result(winner)
-        return 1
+        return winner
 
     winner = vertical_check(flat_board)
     if winner != ' ':
         announce_result(winner)
-        return 1
+        return winner
 
     winner = diagonal_check(flat_board)
     if winner != ' ':
         announce_result(winner)
-        return 1
+        return winner
+
+    return ' '
 
 
 def announce_result(winner):
@@ -201,5 +199,24 @@ def diagonal_check(flat_board):
     return winner
 
 
-start()
+def show_end_game_text(screen, text, pos, font, color, background_color):
+    words = [word.split('\n') for word in text.splitlines()]
+    print(words)
+    space = font.size('')[0]
+    max_width, max_height = screen.get_size()
+    x, y = pos
+    for line in words:
+        for word in line:
+            word_surface = font.render(word, True, color, background_color)
+            word_width, word_height = word_surface.get_size()
+            if x + word_width >= max_width:
+                x = pos[0]
+                y += word_height
+            screen.blit(word_surface, (x, y))
+            x += word_width + space
+        x = pos[0]
+        y += word_height
+
+
+# start()
 pygame.quit()
