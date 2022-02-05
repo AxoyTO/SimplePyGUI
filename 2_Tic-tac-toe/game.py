@@ -1,13 +1,11 @@
 import random
 from time import sleep
-from turtle import back
 import pygame
 import os
 
 COLORS = {
     "BLACK": (0, 0, 0),
     "WHITE": (255, 255, 255),
-    "GREEN": (0, 255, 0),
     "RED": (255, 0, 0)
 }
 
@@ -27,12 +25,21 @@ CELL = {
 GAME_WINDOW_SIZE = [400, 400]
 
 pygame.font.init()
-
-font = pygame.font.SysFont('comic sans ms', 20)
+font = pygame.font.SysFont('comic sans ms', 16)
+game_over_texts = ['[X] WINS. ', '[O] WINS.', 'DRAW. ']
+game_over_texts = [x + ' RETURNING TO MAIN MENU.' for x in game_over_texts]
+x_wins_text = font.render(
+    game_over_texts[0], True, COLORS['RED'], COLORS['BLACK'])
+o_wins_text = font.render(
+    game_over_texts[1], True, COLORS['RED'], COLORS['BLACK'])
+no_winner_text = font.render(
+    game_over_texts[2], True, COLORS['RED'], COLORS['BLACK'])
 
 board = []
 
 current_dir = os.getcwd()
+if '2_Tic-tac-toe' not in current_dir:
+    current_dir = os.path.join(current_dir, '2_Tic-tac-toe')
 o_button_path = os.path.join(current_dir, 'assets', 'o.png')
 x_button_path = os.path.join(current_dir, 'assets', 'x.png')
 
@@ -62,19 +69,23 @@ def start():
                 if turn_specifier == 0:
                     try:
                         if board[row][column] == ' ':
+                            print(
+                                f'[{PLAYER_MARK}] Player\'s Turn: {row,column}')
                             board[row][column] = PLAYER_MARK
                             screen.blit(o_img, closest_cell(row, column)) if PLAYER_MARK == 'O' else screen.blit(
                                 x_img, closest_cell(row, column))
                             display_board()
                             turn_specifier = computer_turn(screen)
+                            display_board()
                             state = check_state()
                             if state != ' ':
-                                winner = 'PLAYER' if state == PLAYER_MARK else 'COMPUTER'
-                                winner_mark = state
+                                if state == 'D':
+                                    screen.blit(no_winner_text, (10, 10))
+                                elif state == 'X':
+                                    screen.blit(x_wins_text, (10, 10))
+                                else:
+                                    screen.blit(o_wins_text, (10, 10))
                                 game_is_running = False
-                                game_over_text = f"THE GAME IS OVER!\n{winner}({winner_mark}) WINS!\nRETURNING TO MAIN MENU"
-                                show_end_game_text(screen, game_over_text,
-                                                   (50, 50), font, COLORS['RED'], COLORS['BLACK'])
                                 pygame.display.flip()
                                 sleep(5)
                     except IndexError:
@@ -108,6 +119,7 @@ def computer_turn(screen):
     while board[x][y] != ' ':
         x = random.randint(0, 9)
         y = random.randint(0, 9)
+    print(f'[{COMPUTER_MARK}] Computer\'s Turn: {x,y}')
     board[x][y] = COMPUTER_MARK
     screen.blit(o_img, closest_cell(x, y)) if COMPUTER_MARK == 'O' else screen.blit(
         x_img, closest_cell(x, y))
@@ -117,6 +129,7 @@ def computer_turn(screen):
 def display_board():
     for i in board:
         print(i)
+    print("===================================================")
 
 
 def closest_cell(row, column):
@@ -126,6 +139,8 @@ def closest_cell(row, column):
 
 def check_state():
     flat_board = [i for x in board for i in x]
+    if draw_check(flat_board):
+        return 'D'
 
     winner = horizontal_check(flat_board)
     if winner != ' ':
@@ -143,6 +158,14 @@ def check_state():
         return winner
 
     return ' '
+
+
+def draw_check(flat_board):
+    for i in flat_board:
+        if i == ' ':
+            return False
+
+    return True
 
 
 def announce_result(winner):
@@ -197,25 +220,6 @@ def diagonal_check(flat_board):
             break
 
     return winner
-
-
-def show_end_game_text(screen, text, pos, font, color, background_color):
-    words = [word.split('\n') for word in text.splitlines()]
-    print(words)
-    space = font.size('')[0]
-    max_width, max_height = screen.get_size()
-    x, y = pos
-    for line in words:
-        for word in line:
-            word_surface = font.render(word, True, color, background_color)
-            word_width, word_height = word_surface.get_size()
-            if x + word_width >= max_width:
-                x = pos[0]
-                y += word_height
-            screen.blit(word_surface, (x, y))
-            x += word_width + space
-        x = pos[0]
-        y += word_height
 
 
 # start()

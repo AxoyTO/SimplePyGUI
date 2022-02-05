@@ -2,7 +2,6 @@ import pygame
 import pygame_menu
 import game
 
-
 pygame.init()
 pygame.display.set_caption('Tic-tac-toe')
 
