@@ -54,7 +54,9 @@ def start():
     screen = adjust_screen()
     adjust_board()
 
-    turn_specifier = 0
+    turn_specifier = 0 if PLAYER_MARK == 'X' else 1
+    if turn_specifier:
+        turn_specifier = computer_turn(screen)
 
     game_is_running = True
     while game_is_running:
@@ -62,35 +64,40 @@ def start():
             if event.type == pygame.QUIT:
                 game_is_running = False
                 break
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN and turn_specifier == 0:
                 pos = pygame.mouse.get_pos()
-                column = pos[0] // (CELL["WIDTH"] + CELL["MARGIN"])
-                row = pos[1] // (CELL["HEIGHT"] + CELL["MARGIN"])
-                if turn_specifier == 0:
-                    try:
-                        if board[row][column] == ' ':
-                            print(
-                                f'[{PLAYER_MARK}] Player\'s Turn: {row,column}')
-                            board[row][column] = PLAYER_MARK
-                            screen.blit(o_img, closest_cell(row, column)) if PLAYER_MARK == 'O' else screen.blit(
-                                x_img, closest_cell(row, column))
+                x = pos[1] // (CELL["HEIGHT"] + CELL["MARGIN"])
+                y = pos[0] // (CELL["WIDTH"] + CELL["MARGIN"])
+                try:
+                    if board[x][y] == ' ':
+                        if turn_specifier == 0:
+                            player_turn(screen, x, y)
                             display_board()
-                            turn_specifier = computer_turn(screen)
-                            display_board()
-                            state = check_state()
-                            if state != ' ':
-                                if state == 'D':
-                                    screen.blit(no_winner_text, (10, 10))
-                                elif state == 'X':
-                                    screen.blit(x_wins_text, (10, 10))
-                                else:
-                                    screen.blit(o_wins_text, (10, 10))
-                                game_is_running = False
-                                pygame.display.flip()
-                                sleep(5)
-                    except IndexError:
-                        pass
+                        computer_turn(screen)
+                        turn_specifier = 0
+                        display_board()
+                        state = check_state()
+                        if state != ' ':
+                            if state == 'D':
+                                screen.blit(no_winner_text, (10, 10))
+                            elif state == 'X':
+                                screen.blit(x_wins_text, (10, 10))
+                            else:
+                                screen.blit(o_wins_text, (10, 10))
+                            game_is_running = False
+                            pygame.display.flip()
+                            sleep(5)
+                except IndexError:
+                    pass
         pygame.display.flip()
+
+
+def player_turn(screen, x, y):
+    print(
+        f'[{PLAYER_MARK}] Player\'s Turn: {x,y}')
+    board[x][y] = PLAYER_MARK
+    screen.blit(o_img, closest_cell(x, y)) if PLAYER_MARK == 'O' else screen.blit(
+        x_img, closest_cell(x, y))
 
 
 def adjust_screen():
