@@ -172,7 +172,7 @@ class Trapezoid(Shape):
 
 
 class Rhombus(Shape):
-    title = "Ромб"
+    title = "Rhombus"
 
     def __init__(self):
         self.methods = ["Area", "Perimeter"]
