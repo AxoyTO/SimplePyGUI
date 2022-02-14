@@ -1,4 +1,3 @@
-from xml.etree.ElementTree import QName
 from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import (QWidget, QMainWindow, QComboBox, QVBoxLayout, QHBoxLayout,
                              QFormLayout, QLineEdit, QLabel, QPushButton, QMessageBox)
