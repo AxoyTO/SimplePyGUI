@@ -2,3 +2,4 @@
 *.idea
 *setup.py
 *.vscode
+*.spec
